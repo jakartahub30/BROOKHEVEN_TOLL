@@ -11,24 +11,38 @@ ScreenGui.Parent = game.CoreGui
 
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 350)
-MainFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+MainFrame.BorderSizePixel = 0
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(30, 30, 30)
+UIStroke.Parent = MainFrame
+
 TitleBar.Name = "TitleBar"
 TitleBar.Parent = MainFrame
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleBar.Size = UDim2.new(1, 0, 0, 25)
+TitleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
 TitleBar.Font = Enum.Font.SourceSansBold
 TitleBar.Text = "Jakarta Script"
 TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleBar.TextSize = 16
+TitleBar.TextSize = 20
+
+local TitleBarCorner = Instance.new("UICorner")
+TitleBarCorner.CornerRadius = UDim.new(0, 10)
+TitleBarCorner.Parent = TitleBar
 
 ScrollingFrame.Parent = MainFrame
-ScrollingFrame.Size = UDim2.new(1, 0, 1, -30)
-ScrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+ScrollingFrame.Size = UDim2.new(1, 0, 1, -40)
+ScrollingFrame.Position = UDim2.new(0, 0, 0, 40)
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollingFrame.ScrollBarThickness = 8
 ScrollingFrame.BackgroundTransparency = 1
@@ -51,6 +65,7 @@ LogoButton.Visible = false
 
 local isVisible = true
 local toggles = {}
+local teleportConnection = nil
 
 local function toggleGui()
     isVisible = not isVisible
@@ -61,12 +76,22 @@ end
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
-    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    Button.Size = UDim2.new(1, 0, 0, 30)
+    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Button.Size = UDim2.new(1, 0, 0, 40)
     Button.Font = Enum.Font.SourceSans
     Button.Text = name .. " [OFF]"
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.TextSize = 20
+
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.Parent = Button
+
+    local ButtonStroke = Instance.new("UIStroke")
+    ButtonStroke.Thickness = 2
+    ButtonStroke.Color = Color3.fromRGB(45, 45, 45)
+    ButtonStroke.Parent = Button
+
     Button.MouseButton1Click:Connect(function()
         toggles[name] = not toggles[name]
         Button.Text = name .. (toggles[name] and " [ON]" or " [OFF]")
@@ -77,7 +102,7 @@ end
 CloseButton.Parent = MainFrame
 CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -35, 0, -35)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
 CloseButton.Font = Enum.Font.SourceSansBold
 CloseButton.Text = "X"
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -199,8 +224,11 @@ createButton("Kill Aura", function(state)
     while killAuraEnabled do
         for _, player in pairs(game.Players:GetPlayers()) do
             if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-                if (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude < 10 then
-                    game:GetService("ReplicatedStorage").Events.Damage:FireServer(player.Character.Humanoid)
+                local distance = (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                if distance < 10 then
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Events.Damage:FireServer(player.Character.Humanoid)
+                    end)
                 end
             end
         end
@@ -208,45 +236,25 @@ createButton("Kill Aura", function(state)
     end
 end)
 
-createButton("Fly", function(state)
-    local flyEnabled = state
-    local player = game.Players.LocalPlayer
-    local character = player.Character
-
-    if flyEnabled then
-        local bodyGyro = Instance.new("BodyGyro")
-        local bodyVelocity = Instance.new("BodyVelocity")
-        bodyGyro.P = 9e4
-        bodyGyro.Parent = character.HumanoidRootPart
-        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        bodyVelocity.Parent = character.HumanoidRootPart
-
-        local function fly()
-            if flyEnabled then
-                bodyVelocity.Velocity = character.HumanoidRootPart.CFrame.LookVector * 50
-                bodyGyro.CFrame = workspace.CurrentCamera.CFrame
-                wait()
-                fly()
-            else
-                bodyGyro:Destroy()
-                bodyVelocity:Destroy()
-            end
-        end
-
-        fly()
-    end
-end)
-
 createButton("Teleport", function(state)
-    if state then
-        local player = game.Players.LocalPlayer
-        local mouse = player:GetMouse()
+    local player = game.Players.LocalPlayer
+    local mouse = player:GetMouse()
 
-        mouse.Button1Down:Connect(function()
+    if state then
+        teleportConnection = mouse.Button1Down:Connect(function()
             if mouse.Target then
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.p)
+                local targetPosition = mouse.Hit.p + Vector3.new(0, 5, 0) -- Adjust the teleport position to be slightly above the ground
+                local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    humanoidRootPart.CFrame = CFrame.new(targetPosition)
+                end
             end
         end)
+    else
+        if teleportConnection then
+            teleportConnection:Disconnect()
+            teleportConnection = nil
+        end
     end
 end)
 
@@ -293,6 +301,51 @@ createButton("Bunny Hop", function(state)
     while bunnyHopEnabled do
         character.Humanoid:ChangeState("Jumping")
         wait(0.3)
+    end
+end)
+
+createButton("Item Float", function(state)
+    local floatEnabled = state
+    local player = game.Players.LocalPlayer
+
+    if floatEnabled then
+        local item = player.Backpack:FindFirstChildOfClass("Tool") or player.Character:FindFirstChildOfClass("Tool")
+        if item then
+            local part = item.Handle or item:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local bodyPosition = Instance.new("BodyPosition")
+                bodyPosition.Position = part.Position + Vector3.new(0, 5, 0)
+                bodyPosition.D = 1000
+                bodyPosition.P = 3000
+                bodyPosition.MaxForce = Vector3.new(4000, 4000, 4000)
+                bodyPosition.Parent = part
+
+                local bodyGyro = Instance.new("BodyGyro")
+                bodyGyro.CFrame = part.CFrame
+                bodyGyro.D = 500
+                bodyGyro.P = 3000
+                bodyGyro.MaxTorque = Vector3.new(4000, 4000, 4000)
+                bodyGyro.Parent = part
+
+                part.CanCollide = true
+            end
+        end
+    else
+        -- Remove floating properties if disabled
+        for _, item in pairs(player.Backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                local part = item.Handle or item:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    if part:FindFirstChildOfClass("BodyPosition") then
+                        part:FindFirstChildOfClass("BodyPosition"):Destroy()
+                    end
+                    if part:FindFirstChildOfClass("BodyGyro") then
+                        part:FindFirstChildOfClass("BodyGyro"):Destroy()
+                    end
+                    part.CanCollide = false
+                end
+            end
+        end
     end
 end)
 
