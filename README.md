@@ -79,7 +79,6 @@ WhiteCross2.Parent = BackgroundFrame
 
 LogoButton.Visible = true
 LogoButton.Active = true
-LogoButton.Draggable = true -- Menjadikan logo dapat digerakkan
 
 local isVisible = true
 local toggles = {}
@@ -327,9 +326,9 @@ createButton("Item Float", function(state)
     local player = game.Players.LocalPlayer
 
     if floatEnabled then
-        local item = player.Backpack:FindFirstChildOfClass("Tool") atau player.Character:FindFirstChildOfClass("Tool")
+        local item = player.Backpack:FindFirstChildOfClass("Tool") or player.Character:FindFirstChildOfClass("Tool")
         if item then
-            local part = item.Handle atau item:FindFirstChildWhichIsA("BasePart")
+            local part = item.Handle or item:FindFirstChildWhichIsA("BasePart")
             if part then
                 local bodyPosition = Instance.new("BodyPosition")
                 bodyPosition.Position = part.Position + Vector3.new(0, 5, 0)
@@ -368,3 +367,41 @@ createButton("Item Float", function(state)
 end)
 
 LogoButton.MouseButton1Click:Connect(toggleGui)
+
+-- Fungsi untuk membuat tombol logo dapat digerakkan
+local UserInputService = game:GetService("UserInputService")
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    LogoButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+LogoButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = LogoButton.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+LogoButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
