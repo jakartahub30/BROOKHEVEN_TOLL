@@ -1,3 +1,4 @@
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -109,3 +110,10 @@ createButton("Invisible", function()
     else
         LocalPlayer.Character.HumanoidRootPart.Transparency = 0
     end
+end)
+
+createSlider("Jump Power", 1, 10000, function(value)
+    jumpPower = value
+end)
+
+create
