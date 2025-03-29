@@ -208,4 +208,92 @@ createButton("Kill Aura", function(state)
     end
 end)
 
+createButton("Fly", function(state)
+    local flyEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+
+    if flyEnabled then
+        local bodyGyro = Instance.new("BodyGyro")
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyGyro.P = 9e4
+        bodyGyro.Parent = character.HumanoidRootPart
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.Parent = character.HumanoidRootPart
+
+        local function fly()
+            if flyEnabled then
+                bodyVelocity.Velocity = character.HumanoidRootPart.CFrame.LookVector * 50
+                bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+                wait()
+                fly()
+            else
+                bodyGyro:Destroy()
+                bodyVelocity:Destroy()
+            end
+        end
+
+        fly()
+    end
+end)
+
+createButton("Teleport", function(state)
+    if state then
+        local player = game.Players.LocalPlayer
+        local mouse = player:GetMouse()
+
+        mouse.Button1Down:Connect(function()
+            if mouse.Target then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.p)
+            end
+        end)
+    end
+end)
+
+createButton("Speed Boost", function(state)
+    local speedBoostEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+
+    if speedBoostEnabled then
+        character.Humanoid.WalkSpeed = 100
+        wait(5)
+        character.Humanoid.WalkSpeed = 16
+    end
+end)
+
+createButton("Heal", function(state)
+    if state then
+        local player = game.Players.LocalPlayer
+        player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+    end
+end)
+
+createButton("Force Field", function(state)
+    local forceFieldEnabled = state
+    local player = game.Players.LocalPlayer
+
+    if forceFieldEnabled then
+        local forceField = Instance.new("ForceField")
+        forceField.Parent = player.Character
+    else
+        for _, child in pairs(player.Character:GetChildren()) do
+            if child:IsA("ForceField") then
+                child:Destroy()
+            end
+        end
+    end
+end)
+
+createButton("Bunny Hop", function(state)
+    local bunnyHopEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+
+    while bunnyHopEnabled do
+        character.Humanoid:ChangeState("Jumping")
+        wait(0.3)
+    end
+end)
+
 LogoButton.MouseButton1Click:Connect(toggleGui)
