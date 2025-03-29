@@ -1,8 +1,9 @@
 local laserAktif = false
 local laserPart
+local player = game.Players.LocalPlayer
+local laserButton = player.PlayerGui.ScreenGui.LaserButton
 
 local function buatLaser()
-    local player = game.Players.LocalPlayer
     if player.Character then
         local character = player.Character
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -53,4 +54,6 @@ local function toggleLaser()
     end
 end
 
-toggleLaser()
+laserButton.MouseButton1Click:Connect(function()
+    toggleLaser()
+end)
