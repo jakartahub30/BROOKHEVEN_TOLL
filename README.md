@@ -1,55 +1,50 @@
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
-local stuckEvent = ReplicatedStorage:WaitForChild("StuckEvent")
+local laserAktif = false
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
+local function buatLaser(player)
+    if player.Character then
+        local character = player.Character
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        
+        local laser = Instance.new("Part")
+        laser.Size = Vector3.new(1, 20, 1)
+        laser.Position = humanoidRootPart.Position - Vector3.new(0, 5, 0)
+        laser.Anchored = true
+        laser.CanCollide = false
+        laser.Color = Color3.fromRGB(255, 0, 0)
+        laser.Material = Enum.Material.Neon
+        laser.Parent = workspace
 
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 200, 0, 50)
-button.Position = UDim2.new(0.5, -100, 0.1, 0)
-button.Text = "Stuck: OFF"
-button.Parent = screenGui
-button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Font = Enum.Font.SourceSansBold
-button.TextSize = 20
+        local beam = Instance.new("Beam")
+        beam.Attachment0 = humanoidRootPart:FindFirstChild("Attachment") or Instance.new("Attachment", humanoidRootPart)
+        beam.Attachment1 = Instance.new("Attachment", laser)
+        beam.Color = ColorSequence.new(Color3.fromRGB(255, 0, 0))
+        beam.Parent = laser
 
-local stuckEnabled = false
+        laser.Touched:Connect(function(hit)
+            local hitPlayer = game.Players:GetPlayerFromCharacter(hit.Parent)
+            if hitPlayer and hitPlayer ~= player then
+                local humanoid = hit.Parent:FindFirstChild("Humanoid")
+                if humanoid then
+                    humanoid.Health = 0
+                end
+            end
+        end)
 
-button.MouseButton1Click:Connect(function()
-    stuckEnabled = not stuckEnabled
-    if stuckEnabled then
-        button.Text = "Stuck: ON"
-        button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    else
-        button.Text = "Stuck: OFF"
-        button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end
-end)
-
-local function teleportAndFreeze(targetPlayer, distance)
-    if targetPlayer and targetPlayer.Character then
-        local targetCharacter = targetPlayer.Character
-        local newPosition = player.Character.HumanoidRootPart.Position + player.Character.HumanoidRootPart.CFrame.LookVector * distance
-        stuckEvent:FireServer(targetPlayer, newPosition)
-
-        local humanoid = targetCharacter:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = 0
-            humanoid.JumpPower = 0
-            humanoid.PlatformStand = true
-        end
+        game:GetService("Debris"):AddItem(laser, 5)
     end
 end
 
-game:GetService("RunService").Heartbeat:Connect(function()
-    if stuckEnabled then
-        for _, targetPlayer in ipairs(Players:GetPlayers()) do
-            if targetPlayer ~= player and targetPlayer.Character then
-                teleportAndFreeze(targetPlayer, 5)
-            end
-        end
+local function toggleLaser(player)
+    laserAktif = not laserAktif
+    if laserAktif then
+        buatLaser(player)
     end
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        wait(1)
+        -- Panggil toggleLaser untuk mengaktifkan atau menonaktifkan laser
+        toggleLaser(player)
+    end)
 end)
