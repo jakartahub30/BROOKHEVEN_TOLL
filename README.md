@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -18,7 +17,7 @@ MainFrame.Parent = ScreenGui
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Title.Text = "JAKARTA HUB"
+Title.Text = "JAKARTA HUB - EXECUTOR"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 20
@@ -69,17 +68,19 @@ local function createSlider(name, min, max, callback)
     end)
 end
 
-local killAA = false
-local noClip = false
-local infinityJump = false
 local speed = 16
-local esp = false
-local invisible = false
-local jumpPower = 50
 local fly = 0
+local noClip = false
 
-createButton("Kill AA", function()
-    killAA = not killAA
+createButton("Toggle Fly", function()
+    fly = fly == 0 and 1 or 0
+    if fly == 1 then
+        LocalPlayer.Character.HumanoidRootPart.Anchored = true
+        LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    else
+        LocalPlayer.Character.HumanoidRootPart.Anchored = false
+        LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+    end
 end)
 
 createButton("No Clip", function()
@@ -91,29 +92,17 @@ createButton("No Clip", function()
     end
 end)
 
-createButton("Infinity Jump", function()
-    infinityJump = not infinityJump
-end)
-
 createSlider("Speed", 1, 500, function(value)
     speed = value
+    LocalPlayer.Character.Humanoid.WalkSpeed = speed
 end)
 
-createButton("ESP", function()
-    esp = not esp
-end)
-
-createButton("Invisible", function()
-    invisible = not invisible
-    if invisible then
-        LocalPlayer.Character.HumanoidRootPart.Transparency = 1
-    else
-        LocalPlayer.Character.HumanoidRootPart.Transparency = 0
+createButton("Execute Command", function()
+    local userCommand = game:GetService("TextBox").Text
+    local success, err = pcall(function()
+        loadstring(userCommand)()
+    end)
+    if not success then
+        warn("Error executing command: " .. err)
     end
 end)
-
-createSlider("Jump Power", 1, 10000, function(value)
-    jumpPower = value
-end)
-
-create
