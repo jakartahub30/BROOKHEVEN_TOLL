@@ -1,108 +1,211 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = LocalPlayer.PlayerGui
-
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 300, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MainFrame.BorderSizePixel = 0
-MainFrame.Parent = ScreenGui
-
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Title.Text = "JAKARTA HUB - EXECUTOR"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 20
-Title.Parent = MainFrame
-
 local ScrollingFrame = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
+local LogoButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
+local TitleBar = Instance.new("TextLabel")
+
+ScreenGui.Name = "JakartaScript"
+ScreenGui.Parent = game.CoreGui
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.Size = UDim2.new(0, 250, 0, 350)
+MainFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = MainFrame
+TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleBar.Size = UDim2.new(1, 0, 0, 25)
+TitleBar.Font = Enum.Font.SourceSansBold
+TitleBar.Text = "Jakarta Script"
+TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleBar.TextSize = 16
+
+ScrollingFrame.Parent = MainFrame
 ScrollingFrame.Size = UDim2.new(1, 0, 1, -30)
 ScrollingFrame.Position = UDim2.new(0, 0, 0, 30)
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 600)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.Parent = MainFrame
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+UIListLayout.Parent = ScrollingFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+LogoButton.Name = "LogoButton"
+LogoButton.Parent = ScreenGui
+LogoButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+LogoButton.Position = UDim2.new(0, 10, 0, 10)
+LogoButton.Size = UDim2.new(0, 50, 0, 50)
+LogoButton.Font = Enum.Font.SourceSansBold
+LogoButton.Text = "JKT"
+LogoButton.TextSize = 20
+LogoButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+LogoButton.Visible = false
+
+local isVisible = true
+local toggles = {}
+
+local function toggleGui()
+    isVisible = not isVisible
+    MainFrame.Visible = isVisible
+    LogoButton.Visible = not isVisible
+end
 
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, -10, 0, 40)
-    Button.Position = UDim2.new(0, 5, 0, 0)
-    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Text = name
     Button.Parent = ScrollingFrame
-    Button.MouseButton1Click:Connect(callback)
-end
-
-local function createSlider(name, min, max, callback)
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(1, -10, 0, 40)
-    SliderFrame.Position = UDim2.new(0, 5, 0, 0)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    SliderFrame.Parent = ScrollingFrame
-
-    local Slider = Instance.new("Slider")
-    Slider.Size = UDim2.new(1, 0, 0, 20)
-    Slider.Position = UDim2.new(0, 0, 0, 10)
-    Slider.Min = min
-    Slider.Max = max
-    Slider.Parent = SliderFrame
-
-    local SliderLabel = Instance.new("TextLabel")
-    SliderLabel.Size = UDim2.new(1, 0, 0, 20)
-    SliderLabel.Position = UDim2.new(0, 0, 0, 0)
-    SliderLabel.Text = name .. " (" .. tostring(min) .. "-" .. tostring(max) .. ")"
-    SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SliderLabel.Parent = SliderFrame
-
-    Slider.ValueChanged:Connect(function(value)
-        SliderLabel.Text = name .. " (" .. tostring(math.floor(value)) .. ")"
-        callback(value)
+    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Button.Size = UDim2.new(1, 0, 0, 30)
+    Button.Font = Enum.Font.SourceSans
+    Button.Text = name .. " [OFF]"
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 20
+    Button.MouseButton1Click:Connect(function()
+        toggles[name] = not toggles[name]
+        Button.Text = name .. (toggles[name] and " [ON]" or " [OFF]")
+        callback(toggles[name])
     end)
 end
 
-local speed = 16
-local fly = 0
-local noClip = false
+CloseButton.Parent = MainFrame
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, -35)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 20
+CloseButton.MouseButton1Click:Connect(toggleGui)
 
-createButton("Toggle Fly", function()
-    fly = fly == 0 and 1 or 0
-    if fly == 1 then
-        LocalPlayer.Character.HumanoidRootPart.Anchored = true
-        LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    else
-        LocalPlayer.Character.HumanoidRootPart.Anchored = false
-        LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+createButton("Super Speed", function(state)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = state and 500 or 16
+end)
+
+createButton("Invisible", function(state)
+    for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if part:IsA("BasePart") then
+            part.Transparency = state and 1 or 0
+        end
     end
 end)
 
-createButton("No Clip", function()
-    noClip = not noClip
-    if noClip then
-        LocalPlayer.Character.HumanoidRootPart.CanCollide = false
-    else
-        LocalPlayer.Character.HumanoidRootPart.CanCollide = true
-    end
+createButton("Jump Power", function(state)
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = state and 200 or 50
 end)
 
-createSlider("Speed", 1, 500, function(value)
-    speed = value
-    LocalPlayer.Character.Humanoid.WalkSpeed = speed
-end)
-
-createButton("Execute Command", function()
-    local userCommand = game:GetService("TextBox").Text
-    local success, err = pcall(function()
-        loadstring(userCommand)()
+createButton("Infinite Jump", function(state)
+    local InfiniteJumpEnabled = state
+    game:GetService("UserInputService").JumpRequest:Connect(function()
+        if InfiniteJumpEnabled then
+            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+        end
     end)
-    if not success then
-        warn("Error executing command: " .. err)
+end)
+
+createButton("NoClip", function(state)
+    local noclip = state
+    game:GetService("RunService").Stepped:Connect(function()
+        if noclip then
+            for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end)
+
+createButton("ESP", function(state)
+    local espEnabled = state
+    while espEnabled do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer then
+                if not player.Character:FindFirstChild("ESPBox") then
+                    local esp = Instance.new("BoxHandleAdornment")
+                    esp.Name = "ESPBox"
+                    esp.Adornee = player.Character
+                    esp.Size = player.Character:GetExtentsSize()
+                    esp.Color3 = Color3.fromRGB(255, 0, 0)
+                    esp.AlwaysOnTop = true
+                    esp.ZIndex = 10
+                    esp.Transparency = 0.7
+                    esp.Parent = player.Character
+                end
+            end
+        end
+        wait(0.1)
+    end
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character:FindFirstChild("ESPBox") then
+            player.Character:FindFirstChild("ESPBox"):Destroy()
+        end
     end
 end)
+
+createButton("Gravity", function(state)
+    game.Workspace.Gravity = state and 50 or 196.2
+end)
+
+createButton("Aim Lock", function(state)
+    local aimlockEnabled = state
+    local aimlockTarget = nil
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            aimlockEnabled = not aimlockEnabled
+            if aimlockEnabled then
+                aimlockTarget = game.Players:GetPlayers()[math.random(1, #game.Players:GetPlayers())]
+            else
+                aimlockTarget = nil
+            end
+        end
+    end)
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if aimlockEnabled and aimlockTarget then
+            local mouse = game.Players.LocalPlayer:GetMouse()
+            mouse.TargetFilter = aimlockTarget.Character
+            mouse.Hit = aimlockTarget.Character.Head.CFrame
+        end
+    end)
+end)
+
+createButton("God Mode", function(state)
+    local godModeEnabled = state
+    while godModeEnabled do
+        game.Players.LocalPlayer.Character.Humanoid.Health = 100
+        wait(0.1)
+    end
+end)
+
+createButton("Anti AFK", function(state)
+    local vu = game:GetService("VirtualUser")
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        if state then
+            vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end
+    end)
+end)
+
+createButton("Kill Aura", function(state)
+    local killAuraEnabled = state
+    while killAuraEnabled do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+                if (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude < 10 then
+                    game:GetService("ReplicatedStorage").Events.Damage:FireServer(player.Character.Humanoid)
+                end
+            end
+        end
+        wait(0.1)
+    end
+end)
+
+LogoButton.MouseButton1Click:Connect(toggleGui)
