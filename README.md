@@ -6,7 +6,7 @@ local LogoButton = Instance.new("TextButton")
 local CloseButton = Instance.new("TextButton")
 local TitleBar = Instance.new("TextLabel")
 
-ScreenGui.Name = "JakartaScript"
+ScreenGui.Name = "CL5Script"
 ScreenGui.Parent = game.CoreGui
 
 MainFrame.Name = "MainFrame"
@@ -32,7 +32,7 @@ TitleBar.Parent = MainFrame
 TitleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 TitleBar.Size = UDim2.new(1, 0, 0, 30)
 TitleBar.Font = Enum.Font.SourceSansBold
-TitleBar.Text = "Jakarta Script"
+TitleBar.Text = "CL5 Script"
 TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleBar.TextSize = 20
 
@@ -57,11 +57,24 @@ LogoButton.Parent = ScreenGui
 LogoButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 LogoButton.Position = UDim2.new(0, 10, 0, 10)
 LogoButton.Size = UDim2.new(0, 50, 0, 50)
-LogoButton.Font = Enum.Font.SourceSansBold
-LogoButton.Text = "JKT"
-LogoButton.TextSize = 20
+LogoButton.Font = Enum.Font.Arcade
+LogoButton.Text = "CL5"
+LogoButton.TextSize = 24
 LogoButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-LogoButton.Visible = false
+LogoButton.Visible = true
+
+-- Tambahkan script untuk membuat logo dapat digerakkan
+LogoButton.Active = true
+LogoButton.Draggable = true
+
+-- Tambahkan script untuk membuat logo memiliki efek hover
+LogoButton.MouseEnter:Connect(function()
+    LogoButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+end)
+
+LogoButton.MouseLeave:Connect(function()
+    LogoButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+end)
 
 local isVisible = true
 local toggles = {}
@@ -350,3 +363,41 @@ createButton("Item Float", function(state)
 end)
 
 LogoButton.MouseButton1Click:Connect(toggleGui)
+
+-- Fungsi untuk membuat tombol logo dapat digerakkan
+local UserInputService = game:GetService("UserInputService")
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    LogoButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+LogoButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = LogoButton.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+LogoButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
