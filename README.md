@@ -2,7 +2,7 @@ local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
-local LogoButton = Instance.new("TextButton")
+local LogoButton = Instance.new("ImageButton") -- Ganti TextButton dengan ImageButton
 local CloseButton = Instance.new("TextButton")
 local TitleBar = Instance.new("TextLabel")
 
@@ -57,11 +57,29 @@ LogoButton.Parent = ScreenGui
 LogoButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 LogoButton.Position = UDim2.new(0, 10, 0, 10)
 LogoButton.Size = UDim2.new(0, 50, 0, 50)
-LogoButton.Font = Enum.Font.SourceSansBold
-LogoButton.Text = "JKT"
-LogoButton.TextSize = 20
-LogoButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-LogoButton.Visible = false
+LogoButton.Image = ""
+
+-- Tambahkan latar belakang merah putih silang
+local BackgroundFrame = Instance.new("Frame")
+BackgroundFrame.Size = UDim2.new(1, 0, 1, 0)
+BackgroundFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+BackgroundFrame.Parent = LogoButton
+
+local WhiteCross1 = Instance.new("Frame")
+WhiteCross1.Size = UDim2.new(0.1, 0, 1, 0)
+WhiteCross1.Position = UDim2.new(0.45, 0, 0, 0)
+WhiteCross1.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WhiteCross1.Parent = BackgroundFrame
+
+local WhiteCross2 = Instance.new("Frame")
+WhiteCross2.Size = UDim2.new(1, 0, 0.1, 0)
+WhiteCross2.Position = UDim2.new(0, 0, 0.45, 0)
+WhiteCross2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WhiteCross2.Parent = BackgroundFrame
+
+LogoButton.Visible = true
+LogoButton.Active = true
+LogoButton.Draggable = true -- Menjadikan logo dapat digerakkan
 
 local isVisible = true
 local toggles = {}
@@ -309,9 +327,9 @@ createButton("Item Float", function(state)
     local player = game.Players.LocalPlayer
 
     if floatEnabled then
-        local item = player.Backpack:FindFirstChildOfClass("Tool") or player.Character:FindFirstChildOfClass("Tool")
+        local item = player.Backpack:FindFirstChildOfClass("Tool") atau player.Character:FindFirstChildOfClass("Tool")
         if item then
-            local part = item.Handle or item:FindFirstChildWhichIsA("BasePart")
+            local part = item.Handle atau item:FindFirstChildWhichIsA("BasePart")
             if part then
                 local bodyPosition = Instance.new("BodyPosition")
                 bodyPosition.Position = part.Position + Vector3.new(0, 5, 0)
@@ -334,7 +352,7 @@ createButton("Item Float", function(state)
         -- Remove floating properties if disabled
         for _, item in pairs(player.Backpack:GetChildren()) do
             if item:IsA("Tool") then
-                local part = item.Handle or item:FindFirstChildWhichIsA("BasePart")
+                local part = item.Handle atau item:FindFirstChildWhichIsA("BasePart")
                 if part then
                     if part:FindFirstChildOfClass("BodyPosition") then
                         part:FindFirstChildOfClass("BodyPosition"):Destroy()
